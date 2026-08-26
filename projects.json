@@ -1,0 +1,7 @@
+{
+  "reportPath": "./reports/parallel-bash-report.txt",
+  "defaultCommand": "printf 'completed: '; pwd",
+  "tasks": [
+    { "path": "." }
+  ]
+}
