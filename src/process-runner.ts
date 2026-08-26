@@ -81,8 +81,8 @@ export async function executeTask(task: ResolvedTask): Promise<TaskResult> {
         status: timedOut ? 'TIMED_OUT' : exitCode === 0 ? 'SUCCESS' : 'FAILED',
         exitCode,
         durationMs: Date.now() - startedAt,
-        stdout: Buffer.concat(stdout),
-        stderr: Buffer.concat(stderr),
+        stdout: Buffer.concat(stdout).toString('utf8'),
+        stderr: Buffer.concat(stderr).toString('utf8'),
       });
     });
   });
