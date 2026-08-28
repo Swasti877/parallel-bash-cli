@@ -45,6 +45,10 @@ export class PromptFlow {
     return canceled(answer) || answer === 'EXIT' ? 'EXIT' : 'RUN_AGAIN';
   }
 
+  public outro(message: string): void {
+    p.outro(message);
+  }
+
   public spinner(message: string): ReturnType<typeof p.spinner> {
     const spinner = p.spinner();
     spinner.start(pc.cyan(message));

@@ -1,5 +1,6 @@
 {
   "reportDir": "./reports",
+  "notify": true,
   "projects": [
     { "name": "Workspace", "path": "." }
   ]

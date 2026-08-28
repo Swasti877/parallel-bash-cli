@@ -9,6 +9,13 @@ export interface ProjectEntry {
 export interface AppConfig {
   readonly reportDir: string;
   readonly projects: readonly ProjectEntry[];
+  readonly notify?: boolean;
+}
+
+export interface NotificationPolicy {
+  readonly enabled: boolean;
+  readonly notifyOnFailOnly: boolean;
+  readonly durationThresholdMs: number;
 }
 
 export interface TaskConfig {

@@ -1,10 +1,12 @@
-import { mkdir, readFile, stat } from 'node:fs/promises';
+import { access, mkdir, readFile, stat } from 'node:fs/promises';
+import { constants } from 'node:fs';
 import path from 'node:path';
 import type { AppConfig, ProjectEntry } from './types.js';
 
 export interface LoadedConfig {
   readonly reportDir: string;
   readonly projects: ProjectEntry[];
+  readonly notify: boolean;
 }
 
 function schemaError(message: string): Error {
@@ -33,6 +35,7 @@ export async function loadConfig(configFile: string): Promise<LoadedConfig> {
   if (!isRecord(parsed) || typeof parsed.reportDir !== 'string' || parsed.reportDir.trim() === '') {
     throw schemaError('reportDir must be a non-empty string');
   }
+  if ('notify' in parsed && typeof parsed.notify !== 'boolean') throw schemaError('notify must be a boolean');
   const rawProjects = parsed.projects;
   if (!Array.isArray(rawProjects) || rawProjects.length === 0) throw schemaError('projects must be a non-empty array');
 
@@ -46,6 +49,7 @@ export async function loadConfig(configFile: string): Promise<LoadedConfig> {
     try {
       const details = await stat(taskPath);
       if (!details.isDirectory()) throw new Error('path is not a directory');
+      await access(taskPath, constants.R_OK | constants.W_OK);
     } catch (error) {
       throw new Error(`Task directory does not exist: ${taskPath} (${error instanceof Error ? error.message : String(error)})`);
     }
@@ -53,5 +57,5 @@ export async function loadConfig(configFile: string): Promise<LoadedConfig> {
   }
 
   await mkdir(reportDir, { recursive: true });
-  return { reportDir, projects };
+  return { reportDir, projects, notify: parsed.notify === true };
 }

@@ -2,12 +2,13 @@ import { PromptFlow } from './ui/prompt-flow.js';
 import { printSummary } from './ui/summary-formatter.js';
 import { ReportSink } from './core/report-sink.js';
 import { runProjectPool } from './core/worker-pool.js';
-import type { AppConfig, ProjectTaskPayload, REPLChoice, SessionSummary } from './types.js';
+import { notify } from './core/notifier.js';
+import type { AppConfig, NotificationPolicy, ProjectTaskPayload, REPLChoice, SessionSummary } from './types.js';
 
 export class InteractiveSession {
   private readonly prompts: PromptFlow;
 
-  public constructor(private readonly config: AppConfig) {
+  public constructor(private readonly config: AppConfig, private readonly notificationPolicy: NotificationPolicy) {
     this.prompts = new PromptFlow(config);
   }
 
@@ -21,6 +22,7 @@ export class InteractiveSession {
       await this.execute(tasks);
       action = await this.prompts.chooseAction();
     }
+    this.prompts.outro('Parallel Bash session complete');
   }
 
   private async execute(tasks: readonly ProjectTaskPayload[]): Promise<void> {
@@ -42,6 +44,7 @@ export class InteractiveSession {
       await sink.close(summary);
       spinner.stop('Execution complete');
       printSummary(results, sink.paths.sessionFilePath, sink.paths.latestFilePath);
+      notify(summary, sink.paths.latestFilePath, this.notificationPolicy);
     } catch (error) {
       spinner.stop('Execution interrupted');
       throw error;
